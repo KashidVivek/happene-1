@@ -1,6 +1,7 @@
 var express = require('express');
 var request = require('request');
 var cheerio = require('cheerio');
+const { getlonglat } = require('./getco')
 const { urlencoded } = require('express');
 var app = express();
 app.use(urlencoded({ extended: true }))
@@ -39,11 +40,19 @@ app.get('/scrape', async function (req, res) {
                 });
                 const data = []
                 for(let i = 0; i < title.length && i < urls.length && i < title.length && i < loc.length;i++) {
+                    // const cord = getlonglat(loc[i])
+                    // console.log(cord)
+                    if(loc[i] == "") {
+                        loc[i] = req.body.state + ', ' + req.body.city
+                    }
+                    const c = await getlonglat(loc[i]).then((data) =>{return data})
+                    console.log(c)
                     var obj = {
                         description: title[i],
                         time: time[i],
                         location: loc[i],
-                        url: urls[i]
+                        url: urls[i],
+                        coordinates: await getlonglat(loc[i]).then((data) =>{return data})
                     }
                     data.push(obj)
                 }
